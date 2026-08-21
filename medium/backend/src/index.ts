@@ -95,5 +95,8 @@ app.put('/api/v1/blog', (c) => {
 app.get('/api/v1/blog/:id', (c) => {
   return c.text('Hello Hono!')
 })
+app.get('/api/v1/blog/bulk', (c) => {
+  return c.text('Hello Hono!')
+})
 
 export default app
