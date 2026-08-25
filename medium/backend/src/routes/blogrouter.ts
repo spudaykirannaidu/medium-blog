@@ -1,6 +1,8 @@
 import { Hono } from "hono";
 import { createPrismaInstance } from "../../lib/prisma";
 import {sign,verify} from "hono/jwt"
+import {bloginput} from "../../../common/src/index";
+import {blogupdate} from "../../../common/src/index";
 
 export const blogRouter= new Hono<{
     Bindings:{
@@ -18,6 +20,10 @@ blogRouter.use('/*',middleware)
 blogRouter.post('/',async  (c) => {
     const {prisma,pool}=await createPrismaInstance(c.env.DATABASE_URL)
     const body= await c.req.json();
+    const response=bloginput.safeParse(body)
+       if(!response.success){
+        return c.json({mss:"invalid input"},411)
+       }
     const userId=c.get("userId")
     const blog=await prisma.post.create({
         data:{
@@ -40,8 +46,13 @@ blogRouter.post('/',async  (c) => {
 
 })
 blogRouter.put('/', async (c) => {
-   try {const {prisma,pool}=await createPrismaInstance(c.env.DATABASE_URL)
+    const {prisma,pool}=await createPrismaInstance(c.env.DATABASE_URL)
     const body= await c.req.json();
+    const response=blogupdate.safeParse(body)
+       if(!response.success){
+        return c.json({mss:"invalid input"},411)
+       }
+   try {
     
     const blog=await prisma.post.update({
         where:{
@@ -66,24 +77,53 @@ blogRouter.put('/', async (c) => {
         console.log(e)
     }
 })
-blogRouter.get('/id', async (c) => {
+
+blogRouter.get('/bulk', async (c) => {
+    const {prisma,pool}=await createPrismaInstance(c.env.DATABASE_URL);
+    const blogs=await prisma.post.findMany({
+        select:{
+                content:true,
+                title:true,
+                id:true,
+                author:{
+                    select:{
+                        name:true
+
+                    }
+                    
+                    
+                }
+        }
+    })
+    
+   return c.json({
+  blogs
+});
+})
+blogRouter.get('/:id', async (c) => {
    const {prisma,pool}=await createPrismaInstance(c.env.DATABASE_URL)
-    const body= await c.req.param("id ");
+    const body= await c.req.param("id");
     const userId=c.get("userId")
     const blog=await prisma.post.findFirst({
         where:{
             id:body
+        },
+        select:{
+            content:true,
+                title:true,
+                id:true,
+                author:{
+                    select:{
+                        name:true
+
+                    }
+            
+            
         }
         
-    })
+    }
+})
     return c.json({
         blog
     })
-})
-blogRouter.get('/bulk', async (c) => {
-    const {prisma,pool}=await createPrismaInstance(c.env.DATABASE_URL);
-    const blogs=await prisma.post.findMany()
-  return c.json({
-     blogs
-  })
 })

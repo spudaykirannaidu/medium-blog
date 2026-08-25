@@ -1,8 +1,8 @@
 import z from "zod"
-import type { TypeOf } from "zod/v3"
+
 export const signupinput=z.object({
     email:z.email(),
-    password:z.string().min(8),
+    password:z.string(),
     name:z.string().optional()
 
 
@@ -11,7 +11,7 @@ export const signupinput=z.object({
 
 export const signininput=z.object({
     email:z.email(),
-    password:z.string().min(8),
+    password:z.string(),
     
 
 

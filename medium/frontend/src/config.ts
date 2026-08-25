@@ -1,0 +1,1 @@
+export  const backend_url="https://backend.spudaykirannaidu.workers.dev"

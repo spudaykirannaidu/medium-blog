@@ -1,6 +1,8 @@
 import { Hono } from "hono";
 import { createPrismaInstance } from "../../lib/prisma";
 import {sign,verify} from "hono/jwt"
+import {signupinput} from "../../../common/src/index";
+import {signininput} from "../../../common/src/index";
 
 type CloudflareEnv = {
   Bindings: {
@@ -11,14 +13,20 @@ type CloudflareEnv = {
 export const userRouter=new Hono<CloudflareEnv>();
 
 userRouter.post('/signup', async (c) => {
+
    
    const { prisma, pool } = await createPrismaInstance(c.env.DATABASE_URL);
    const body= await c.req.json();
+   const response=signupinput.safeParse(body)
+   if(!response.success){
+    return c.json({mss:"invalid input"},411)
+   }
    try{
      const res=await prisma.user.create({
     data:{
       email:body.email,
-      password:body.password
+      password:body.password,
+      name: body.name
     }
    })
    const token= await sign({id:res.id},c.env.jwt_hide)
@@ -42,12 +50,17 @@ userRouter.post('/signup', async (c) => {
 userRouter.post('/signin', async (c) => {
  const { prisma, pool } = await createPrismaInstance(c.env.DATABASE_URL);
    const body= await c.req.json();
+   const response=signininput.safeParse(body)
+   if(!response.success){
+    return c.json({mss:"invalid input"},411)
+   }
    try {
     
    const userdata=await prisma.user.findUnique({
     where:{
       email:body.email,
       password:body.password
+      
     }
    })
    if(!userdata){
