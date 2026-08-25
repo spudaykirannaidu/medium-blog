@@ -4,7 +4,7 @@ import { useState } from "react";
 import type {signupInput} from "../../../common/src/index";
 import axios from "axios";
 import { backend_url } from "../config";
-import { Navigate } from "react-router-dom";
+
 import { toast } from "react-hot-toast"
 
 

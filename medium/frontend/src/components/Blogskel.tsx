@@ -1,5 +1,5 @@
 
-import {Appbar} from "../components/Appbar"
+
 export function Blogskel(){
     return <div>
        
